@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101319" />
+  <title>TextureKeys</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">T</div>
+        <div>
+          <h1>Texture<span>Keys</span></h1>
+          <p>AMBIENT TEXTURE INSTRUMENT</p>
+        </div>
+      </div>
+
+      <div class="project">
+        <span class="project-label">PROJECT</span>
+        <span class="project-name">Untitled Texture</span>
+      </div>
+
+      <div class="master">
+        <label for="masterVolume">MASTER</label>
+        <span id="masterValue">80%</span>
+        <input id="masterVolume" type="range" min="0" max="100" value="80" />
+      </div>
+    </header>
+
+    <section class="performance">
+      <div class="engine-status">
+        <div class="status-indicator" id="statusIndicator"></div>
+        <div>
+          <strong id="engineStatus">ENGINE INACTIVE</strong>
+          <span id="engineDetail">Ready for activation</span>
+        </div>
+      </div>
+
+      <div class="hold-setting">
+        <label for="holdTime">GLOBAL HOLD</label>
+        <div class="hold-value">
+          <span id="holdValue">1500</span><span class="unit">ms</span>
+        </div>
+        <input id="holdTime" type="range" min="0" max="5000" step="1" value="1500" />
+        <div class="range-labels"><span>0 ms</span><span>5000 ms</span></div>
+      </div>
+
+      <button id="latchButton" class="latch-button" aria-pressed="false">
+        <span class="latch-symbol">∞</span>
+        <span class="latch-copy">
+          <strong>LATCH</strong>
+          <small id="latchDetail">Infinite sustain off</small>
+        </span>
+        <span class="toggle"><span></span></span>
+      </button>
+    </section>
+
+    <section class="layers-section">
+      <div class="section-heading">
+        <div>
+          <h2>Texture Layers</h2>
+          <p>Blend your atmosphere</p>
+        </div>
+        <span class="layer-count">4 LAYERS</span>
+      </div>
+
+      <div class="layers-grid">
+
+        <article class="layer-card" data-layer="1">
+          <div class="layer-header">
+            <div class="layer-number">01</div>
+            <div class="layer-title">
+              <h3>Texture 01</h3>
+              <p class="sample-name">No sample loaded</p>
+            </div>
+            <button class="enable-button active" title="Enable layer">●</button>
+          </div>
+
+          <div class="waveform wave-1">
+            <div class="wave-placeholder">＋</div>
+            <span>LOAD SAMPLE</span>
+          </div>
+
+          <div class="layer-controls">
+            <div class="fader-row">
+              <label>LEVEL</label>
+              <span class="layer-volume-value">75%</span>
+            </div>
+            <input class="layer-volume" type="range" min="0" max="100" value="75" />
+            <div class="layer-actions">
+              <button class="mute-button">MUTE</button>
+              <button class="solo-button">SOLO</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="layer-card" data-layer="2">
+          <div class="layer-header">
+            <div class="layer-number">02</div>
+            <div class="layer-title">
+              <h3>Texture 02</h3>
+              <p class="sample-name">No sample loaded</p>
+            </div>
+            <button class="enable-button active" title="Enable layer">●</button>
+          </div>
+
+          <div class="waveform wave-2">
+            <div class="wave-placeholder">＋</div>
+            <span>LOAD SAMPLE</span>
+          </div>
+
+          <div class="layer-controls">
+            <div class="fader-row">
+              <label>LEVEL</label>
+              <span class="layer-volume-value">65%</span>
+            </div>
+            <input class="layer-volume" type="range" min="0" max="100" value="65" />
+            <div class="layer-actions">
+              <button class="mute-button">MUTE</button>
+              <button class="solo-button">SOLO</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="layer-card" data-layer="3">
+          <div class="layer-header">
+            <div class="layer-number">03</div>
+            <div class="layer-title">
+              <h3>Texture 03</h3>
+              <p class="sample-name">No sample loaded</p>
+            </div>
+            <button class="enable-button active" title="Enable layer">●</button>
+          </div>
+
+          <div class="waveform wave-3">
+            <div class="wave-placeholder">＋</div>
+            <span>LOAD SAMPLE</span>
+          </div>
+
+          <div class="layer-controls">
+            <div class="fader-row">
+              <label>LEVEL</label>
+              <span class="layer-volume-value">55%</span>
+            </div>
+            <input class="layer-volume" type="range" min="0" max="100" value="55" />
+            <div class="layer-actions">
+              <button class="mute-button">MUTE</button>
+              <button class="solo-button">SOLO</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="layer-card" data-layer="4">
+          <div class="layer-header">
+            <div class="layer-number">04</div>
+            <div class="layer-title">
+              <h3>Texture 04</h3>
+              <p class="sample-name">No sample loaded</p>
+            </div>
+            <button class="enable-button active" title="Enable layer">●</button>
+          </div>
+
+          <div class="waveform wave-4">
+            <div class="wave-placeholder">＋</div>
+            <span>LOAD SAMPLE</span>
+          </div>
+
+          <div class="layer-controls">
+            <div class="fader-row">
+              <label>LEVEL</label>
+              <span class="layer-volume-value">45%</span>
+            </div>
+            <input class="layer-volume" type="range" min="0" max="100" value="45" />
+            <div class="layer-actions">
+              <button class="mute-button">MUTE</button>
+              <button class="solo-button">SOLO</button>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="play-section">
+      <div class="input-info">
+        <div class="input-icon">⌨</div>
+        <div>
+          <strong>KEYBOARD / MIDI</strong>
+          <span>Any key activates textures</span>
+        </div>
+        <div class="midi-status">
+          <span class="midi-dot"></span>
+          MIDI NOT CONNECTED
+        </div>
+      </div>
+
+      <button id="holdButton" class="hold-button">
+        <span class="hold-icon">◉</span>
+        <span class="hold-text">
+          <strong>HOLD TEXTURES</strong>
+          <small>Press and hold to activate</small>
+        </span>
+      </button>
+
+      <div class="footer">
+        <span>TEXTUREKEYS <span class="footer-version">V0.1</span></span>
+        <span>MADE FOR ATMOSPHERE</span>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
