@@ -296,13 +296,6 @@ button {
 
 .db-scale {
   display: none;
-  position: relative;
-  height: 200px;
-  width: 34px;
-  flex: 0 0 34px;
-  color: var(--muted);
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
 }
 
 .db-tick {
