@@ -12,8 +12,6 @@ if (!layersGrid) {
   throw new Error("TextureKeys: layers-grid element was not found.");
 }
 
-// Create layers
-
 const layers = layerSettings.map((settings, index) => {
   const card = document.createElement("article");
   card.className = "layer-card";
@@ -27,9 +25,9 @@ const layers = layerSettings.map((settings, index) => {
           class="layer-name-input"
           type="text"
           value="${settings.name}"
-          aria-label="Layer name"
-          maxlength="24"
-          spellcheck="false">
+          aria-label="Layer ${index + 1} name"
+          maxlength="30"
+        />
       </div>
       <button class="sample-button" type="button">+ LOAD SAMPLE</button>
     </div>
@@ -58,10 +56,10 @@ const layers = layerSettings.map((settings, index) => {
     </div>
 
     <div class="layer-buttons">
-      <button class="layer-action mute-button"
-        type="button" aria-pressed="false">MUTE</button>
-      <button class="layer-action solo-button"
-        type="button" aria-pressed="false">SOLO</button>
+      <button class="layer-action mute-button" type="button"
+        aria-pressed="false">MUTE</button>
+      <button class="layer-action solo-button" type="button"
+        aria-pressed="false">SOLO</button>
     </div>
   `;
 
@@ -72,14 +70,14 @@ const layers = layerSettings.map((settings, index) => {
     db: settings.db,
     muted: false,
     solo: false,
-    nameInput: card.querySelector(".layer-name-input"),
     track: card.querySelector(".fader-track"),
     cap: card.querySelector(".fader-cap"),
     fill: card.querySelector(".fader-fill"),
     readout: card.querySelector(".fader-readout"),
     scale: card.querySelector(".db-scale"),
     muteButton: card.querySelector(".mute-button"),
-    soloButton: card.querySelector(".solo-button")
+    soloButton: card.querySelector(".solo-button"),
+    nameInput: card.querySelector(".layer-name-input")
   };
 });
 
@@ -106,6 +104,8 @@ function drawFader(layer) {
   if (!trackHeight) return;
 
   const position = positionFromDb(layer.db);
+
+  // Keep the cap fully inside the track.
   const inset = 8;
   const usableHeight = trackHeight - inset * 2;
   const y = inset + position * usableHeight;
@@ -151,7 +151,7 @@ function setFaderFromPointer(layer, clientY) {
   drawFader(layer);
 }
 
-// Initialize faders and layer controls
+// Initialize faders and layer buttons.
 
 layers.forEach(layer => {
   drawFader(layer);
@@ -159,7 +159,6 @@ layers.forEach(layer => {
   // Editable layer name
   layer.nameInput.addEventListener("input", () => {
     const name = layer.nameInput.value.trim() || "Unnamed Layer";
-
     layer.track.setAttribute("aria-label", `${name} volume`);
   });
 
@@ -228,7 +227,6 @@ let holdDuration = 1500;
 let holdTimer = null;
 let releaseCountdownInterval = null;
 let releaseEndsAt = 0;
-
 let midiNotes = new Set();
 let sustainDown = false;
 
@@ -265,15 +263,11 @@ function updateIndicators(state) {
     engineStatus.textContent = "LATCHED";
   } else if (state === "fading") {
     const remaining = Math.max(0, releaseEndsAt - Date.now());
-
-    engineStatus.textContent =
-      `RELEASING ${(remaining / 1000).toFixed(1)}s`;
+    engineStatus.textContent = `RELEASING ${(remaining / 1000).toFixed(1)}s`;
   } else {
     engineStatus.textContent = "READY";
   }
 }
-
-// Release countdown
 
 function startReleaseTimer() {
   cancelHoldTimer();
@@ -290,28 +284,26 @@ function startReleaseTimer() {
 
   releaseEndsAt = Date.now() + holdDuration;
 
-  function updateCountdown() {
+  updateIndicators("fading");
+
+  // Update the visible countdown 20 times per second.
+  releaseCountdownInterval = setInterval(() => {
     if (hasLiveInput() || latchEnabled) {
       cancelHoldTimer();
       updateIndicators("active");
       return;
     }
 
-    if (Date.now() >= releaseEndsAt) {
+    const remaining = releaseEndsAt - Date.now();
+
+    if (remaining <= 0) {
       cancelHoldTimer();
       updateIndicators("idle");
       return;
     }
 
     updateIndicators("fading");
-  }
-
-  updateIndicators("fading");
-
-  releaseCountdownInterval = setInterval(
-    updateCountdown,
-    50
-  );
+  }, 50);
 
   holdTimer = setTimeout(() => {
     cancelHoldTimer();
@@ -464,7 +456,7 @@ async function connectMidi() {
 connectMidi();
 updateIndicators("idle");
 
-// Redraw faders if their dimensions change
+// Redraw faders if their dimensions change.
 
 if ("ResizeObserver" in window) {
   const resizeObserver = new ResizeObserver(() => {
