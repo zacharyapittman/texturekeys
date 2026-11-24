@@ -1,268 +1,375 @@
 
-const holdSlider = document.getElementById("holdTime");
-const holdValue = document.getElementById("holdValue");
-const latchButton = document.getElementById("latchButton");
-const latchDetail = document.getElementById("latchDetail");
-const holdButton = document.getElementById("holdButton");
-const engineStatus = document.getElementById("engineStatus");
-const engineDetail = document.getElementById("engineDetail");
-const statusIndicator = document.getElementById("statusIndicator");
+const layerSettings = [
+  { name: "Layer One", db: -6 },
+  { name: "Layer Two", db: -12 },
+  { name: "Layer Three", db: -18 },
+  { name: "Layer Four", db: -24 }
+];
 
-const masterVolume = document.getElementById("masterVolume");
-const masterValue = document.getElementById("masterValue");
+const layersGrid = document.getElementById("layers-grid");
 
-let latchOn = false;
-let touchHold = false;
-let heldKeys = new Set();
-let holdTimer = null;
-let timerEnd = null;
-let timerInterval = null;
+const layers = layerSettings.map((settings, index) => {
+  const card = document.createElement("article");
+  card.className = "layer-card";
+  card.dataset.layer = index + 1;
 
-let engineState = "inactive";
+  card.innerHTML = `
+    <div class="layer-header">
+      <div class="layer-heading">
+        <span class="layer-number">0${index + 1}</span>
+        <h2>${settings.name}</h2>
+      </div>
+      <button class="sample-button" type="button">+ LOAD SAMPLE</button>
+    </div>
 
-function isInputActive() {
-  return heldKeys.size > 0 || touchHold;
+    <div class="sample-name">No sample loaded</div>
+    <div class="waveform-placeholder">LOAD AUDIO SAMPLE</div>
+
+    <div class="fader-section">
+      <span class="fader-label">VOLUME</span>
+      <div class="fader-unit">
+        <div class="db-scale" aria-hidden="true"></div>
+        <div class="fader-track" role="slider" tabindex="0"
+          aria-label="${settings.name} volume"
+          aria-valuemin="-60" aria-valuemax="0"
+          aria-orientation="vertical">
+          <div class="fader-fill"></div>
+          <div class="fader-cap"></div>
+        </div>
+      </div>
+      <div class="fader-readout"></div>
+    </div>
+
+    <div class="layer-buttons">
+      <button class="layer-action mute-button" type="button">MUTE</button>
+      <button class="layer-action solo-button" type="button">SOLO</button>
+    </div>
+  `;
+
+  layersGrid.appendChild(card);
+
+  return {
+    card,
+    db: settings.db,
+    muted: false,
+    solo: false,
+    track: card.querySelector(".fader-track"),
+    cap: card.querySelector(".fader-cap"),
+    fill: card.querySelector(".fader-fill"),
+    readout: card.querySelector(".fader-readout"),
+    scale: card.querySelector(".db-scale"),
+    muteButton: card.querySelector(".mute-button"),
+    soloButton: card.querySelector(".solo-button")
+  };
+});
+
+const TICKS = [0, -3, -6, -12, -18, -24, -36, -60];
+
+function positionFromDb(db) {
+  return Math.sqrt(Math.abs(db) / 60);
 }
 
-function clearHoldTimer() {
+function dbFromPosition(position) {
+  return -60 * position * position;
+}
+
+function formatDb(db) {
+  if (db <= -59.5) return "−∞ dB";
+  return `${db.toFixed(1)} dB`;
+}
+
+function drawFader(layer) {
+  const trackHeight = layer.track.clientHeight;
+  const position = positionFromDb(layer.db);
+  const y = position * trackHeight;
+
+  layer.cap.style.top = `${y}px`;
+  layer.fill.style.height = `${trackHeight - y}px`;
+  layer.readout.textContent = formatDb(layer.db);
+
+  layer.track.setAttribute("aria-valuenow", layer.db.toFixed(1));
+  layer.track.setAttribute("aria-valuetext", formatDb(layer.db));
+
+  layer.scale.innerHTML = "";
+
+  TICKS.forEach((tick, index) => {
+    const mark = document.createElement("span");
+    mark.className = "db-tick";
+
+    if (index === 0) mark.classList.add("top");
+    if (index === TICKS.length - 1) mark.classList.add("bottom");
+    if (tick === 0) mark.classList.add("unity");
+
+    const tickPosition = positionFromDb(tick);
+    mark.style.top = `${tickPosition * trackHeight}px`;
+    mark.textContent = tick === -60 ? "−∞" : String(tick);
+
+    layer.scale.appendChild(mark);
+  });
+}
+
+function setFaderFromPointer(layer, clientY) {
+  const rect = layer.track.getBoundingClientRect();
+  const position = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+
+  layer.db = position >= 0.999
+    ? -60
+    : dbFromPosition(position);
+
+  drawFader(layer);
+}
+
+layers.forEach(layer => {
+  drawFader(layer);
+
+  layer.track.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    layer.track.setPointerCapture(event.pointerId);
+    setFaderFromPointer(layer, event.clientY);
+  });
+
+  layer.track.addEventListener("pointermove", event => {
+    if (layer.track.hasPointerCapture(event.pointerId)) {
+      setFaderFromPointer(layer, event.clientY);
+    }
+  });
+
+  layer.track.addEventListener("keydown", event => {
+    let nextDb = layer.db;
+
+    if (event.key === "ArrowUp" || event.key === "ArrowRight") {
+      nextDb = Math.min(0, layer.db + 1);
+    } else if (event.key === "ArrowDown" || event.key === "ArrowLeft") {
+      nextDb = Math.max(-60, layer.db - 1);
+    } else if (event.key === "PageUp") {
+      nextDb = Math.min(0, layer.db + 6);
+    } else if (event.key === "PageDown") {
+      nextDb = Math.max(-60, layer.db - 6);
+    } else if (event.key === "Home") {
+      nextDb = 0;
+    } else if (event.key === "End") {
+      nextDb = -60;
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+    layer.db = nextDb;
+    drawFader(layer);
+  });
+
+  layer.muteButton.addEventListener("click", () => {
+    layer.muted = !layer.muted;
+    layer.muteButton.classList.toggle("active", layer.muted);
+    layer.card.classList.toggle("muted", layer.muted);
+    layer.muteButton.setAttribute("aria-pressed", layer.muted);
+  });
+
+  layer.soloButton.addEventListener("click", () => {
+    layer.solo = !layer.solo;
+    layer.soloButton.classList.toggle("active", layer.solo);
+    layer.soloButton.setAttribute("aria-pressed", layer.solo);
+  });
+});
+
+// Global activation and hold timer
+
+const holdButton = document.getElementById("hold-button");
+const holdLight = document.getElementById("hold-light");
+const statusLight = document.getElementById("status-light");
+const engineStatus = document.getElementById("engine-status");
+const latchButton = document.getElementById("latch-button");
+const latchStatus = document.getElementById("latch-status");
+
+let touchHeld = false;
+let latchEnabled = false;
+let holdDuration = 1500;
+let holdTimer = null;
+let midiNotes = new Set();
+let sustainDown = false;
+
+function hasLiveInput() {
+  return touchHeld || midiNotes.size > 0 || sustainDown;
+}
+
+function cancelHoldTimer() {
   if (holdTimer) {
     clearTimeout(holdTimer);
     holdTimer = null;
   }
-
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-
-  timerEnd = null;
 }
 
-function setEngineState(state, detail) {
-  engineState = state;
+function updateIndicators(state) {
+  const live = hasLiveInput();
 
-  document.body.classList.remove("active", "timer");
+  holdLight.classList.toggle("active", live);
+  holdButton.classList.toggle("pressed", live);
 
-  if (state === "active") {
-    document.body.classList.add("active");
+  statusLight.classList.toggle("active", live || latchEnabled);
+  statusLight.classList.toggle("fading", state === "fading");
+
+  if (live) {
+    engineStatus.textContent = "ACTIVE";
+  } else if (latchEnabled) {
+    engineStatus.textContent = "LATCHED";
+  } else if (state === "fading") {
+    engineStatus.textContent = "RELEASING";
+  } else {
+    engineStatus.textContent = "READY";
   }
-
-  if (state === "timer") {
-    document.body.classList.add("timer");
-  }
-
-  engineStatus.textContent = {
-    active: "ENGINE ACTIVE",
-    timer: "HOLD TIMER",
-    releasing: "RELEASING",
-    inactive: "ENGINE INACTIVE"
-  }[state];
-
-  engineDetail.textContent = detail;
-
-  statusIndicator.title = state;
 }
 
-function activateEngine(detail = "Texture controls active") {
-  clearHoldTimer();
-  setEngineState("active", detail);
-}
+function startReleaseTimer() {
+  cancelHoldTimer();
 
-function beginHoldTimer() {
-  if (latchOn || isInputActive()) {
+  if (latchEnabled || hasLiveInput()) {
+    updateIndicators("active");
     return;
   }
 
-  clearHoldTimer();
-
-  const duration = Number(holdSlider.value);
-
-  if (duration === 0) {
-    setEngineState("releasing", "Hold complete");
-    setTimeout(() => {
-      if (!latchOn && !isInputActive()) {
-        setEngineState("inactive", "Ready for activation");
-      }
-    }, 250);
+  if (holdDuration === 0) {
+    updateIndicators("idle");
     return;
   }
 
-  timerEnd = Date.now() + duration;
-  setEngineState("timer", `Fading in ${duration} ms`);
-
-  timerInterval = setInterval(() => {
-    const remaining = Math.max(0, timerEnd - Date.now());
-
-    engineDetail.textContent = `Fading in ${Math.ceil(remaining)} ms`;
-
-    if (remaining <= 0) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        timerEnd = null;
-    }
-  }, 20);
+  updateIndicators("fading");
 
   holdTimer = setTimeout(() => {
     holdTimer = null;
 
-    if (!latchOn && !isInputActive()) {
-      setEngineState("releasing", "Hold complete");
-
-      setTimeout(() => {
-        if (!latchOn && !isInputActive() && engineState === "releasing") {
-          setEngineState("inactive", "Ready for activation");
-        }
-      }, 250);
+    if (!hasLiveInput() && !latchEnabled) {
+      updateIndicators("idle");
     }
-  }, duration);
+  }, holdDuration);
 }
 
-function updateActivation() {
-  if (latchOn) {
-    activateEngine("Latch enabled · Infinite sustain");
-    return;
-  }
-
-  if (isInputActive()) {
-    let detail = "Keyboard held";
-
-    if (touchHold && heldKeys.size > 0) {
-      detail = "Touch + keyboard held";
-    } else if (touchHold) {
-      detail = "Touch Hold active";
-    }
-
-    activateEngine(detail);
-    return;
-  }
-
-  if (engineState === "active") {
-    beginHoldTimer();
+function activationChanged() {
+  if (hasLiveInput()) {
+    cancelHoldTimer();
+    updateIndicators("active");
+  } else {
+    startReleaseTimer();
   }
 }
 
-// Global Hold Time
-holdSlider.addEventListener("input", () => {
-  holdValue.textContent = holdSlider.value;
+// Touchscreen Hold control
 
-  if (engineState === "timer") {
-    beginHoldTimer();
-  }
-});
-
-// Latch
-latchButton.addEventListener("click", () => {
-  latchOn = !latchOn;
-  latchButton.classList.toggle("active", latchOn);
-  latchButton.setAttribute("aria-pressed", String(latchOn));
-
-  latchDetail.textContent = latchOn
-    ? "Infinite sustain on"
-    : "Infinite sustain off";
-
-  updateActivation();
-});
-
-// Touch / Mouse Hold
-holdButton.addEventListener("pointerdown", (event) => {
+holdButton.addEventListener("pointerdown", event => {
   event.preventDefault();
-
-  touchHold = true;
-  holdButton.classList.add("pressed");
-
-  try {
-    holdButton.setPointerCapture(event.pointerId);
-  } catch (_) {}
-
-  updateActivation();
+  holdButton.setPointerCapture(event.pointerId);
+  touchHeld = true;
+  activationChanged();
 });
 
 function releaseTouchHold() {
-  if (!touchHold) return;
-
-  touchHold = false;
-  holdButton.classList.remove("pressed");
-  updateActivation();
+  if (!touchHeld) return;
+  touchHeld = false;
+  activationChanged();
 }
 
 holdButton.addEventListener("pointerup", releaseTouchHold);
 holdButton.addEventListener("pointercancel", releaseTouchHold);
 holdButton.addEventListener("lostpointercapture", releaseTouchHold);
 
-// Computer keyboard
-window.addEventListener("keydown", (event) => {
-  if (event.repeat) return;
+// Latch
 
+latchButton.addEventListener("click", () => {
+  latchEnabled = !latchEnabled;
+  latchStatus.textContent = latchEnabled ? "ON" : "OFF";
+  latchButton.classList.toggle("selected", latchEnabled);
+  activationChanged();
+});
+
+// Hold Time popover
+
+const holdSettingsButton = document.getElementById("hold-settings-button");
+const holdPopover = document.getElementById("hold-popover");
+const closeHoldSettings = document.getElementById("close-hold-settings");
+const holdTimeSlider = document.getElementById("hold-time");
+const holdValue = document.getElementById("hold-value");
+const holdPopoverValue = document.getElementById("hold-popover-value");
+
+function updateHoldDisplay() {
+  holdValue.textContent = `${(holdDuration / 1000).toFixed(1)}s`;
+  holdPopoverValue.textContent = `${holdDuration} ms`;
+}
+
+holdSettingsButton.addEventListener("click", () => {
+  holdPopover.hidden = !holdPopover.hidden;
+});
+
+closeHoldSettings.addEventListener("click", () => {
+  holdPopover.hidden = true;
+});
+
+document.addEventListener("pointerdown", event => {
   if (
-    event.target instanceof HTMLElement &&
-    (event.target.isContentEditable ||
-      ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName))
+    !holdPopover.hidden &&
+    !holdPopover.contains(event.target) &&
+    !holdSettingsButton.contains(event.target)
   ) {
+    holdPopover.hidden = true;
+  }
+});
+
+holdTimeSlider.addEventListener("input", () => {
+  holdDuration = Number(holdTimeSlider.value);
+  updateHoldDisplay();
+
+  if (!hasLiveInput() && !latchEnabled && holdTimer) {
+    startReleaseTimer();
+  }
+});
+
+updateHoldDisplay();
+
+// MIDI input
+
+async function connectMidi() {
+  if (!navigator.requestMIDIAccess) {
+    engineStatus.textContent = "MIDI UNSUPPORTED";
     return;
   }
 
-  // Ignore modifier keys and common browser shortcuts.
-  if (event.metaKey || event.ctrlKey || event.altKey) return;
+  try {
+    const midi = await navigator.requestMIDIAccess();
 
-  heldKeys.add(event.code);
-  updateActivation();
-});
+    function attachInput(input) {
+      input.onmidimessage = event => {
+        const [status, data1, data2] = event.data;
+        const command = status & 0xf0;
 
-window.addEventListener("keyup", (event) => {
-  heldKeys.delete(event.code);
-  updateActivation();
-});
+        if (command === 0x90 && data2 > 0) {
+          midiNotes.add(`${input.id}-${data1}`);
+          activationChanged();
+        } else if (command === 0x80 || (command === 0x90 && data2 === 0)) {
+          midiNotes.delete(`${input.id}-${data1}`);
+          activationChanged();
+        } else if (command === 0xb0 && data1 === 64) {
+          sustainDown = data2 >= 64;
+          activationChanged();
+        }
+      };
+    }
 
-// Prevent stuck notes if window loses focus.
-window.addEventListener("blur", () => {
-  heldKeys.clear();
-  touchHold = false;
-  holdButton.classList.remove("pressed");
-  updateActivation();
-});
+    midi.inputs.forEach(attachInput);
 
-// Master volume
-masterVolume.addEventListener("input", () => {
-  masterValue.textContent = `${masterVolume.value}%`;
-});
+    midi.onstatechange = event => {
+      if (event.port.type === "input" && event.port.state === "connected") {
+        attachInput(event.port);
+      }
 
-// Layer controls
-document.querySelectorAll(".layer-card").forEach((card) => {
-  const enableButton = card.querySelector(".enable-button");
-  const muteButton = card.querySelector(".mute-button");
-  const soloButton = card.querySelector(".solo-button");
-  const volumeSlider = card.querySelector(".layer-volume");
-  const volumeValue = card.querySelector(".layer-volume-value");
+      if (event.port.type === "input" && event.port.state === "disconnected") {
+        midiNotes.clear();
+        sustainDown = false;
+        activationChanged();
+      }
+    };
+  } catch (error) {
+    engineStatus.textContent = "MIDI UNAVAILABLE";
+  }
+}
 
-  enableButton.addEventListener("click", () => {
-    enableButton.classList.toggle("active");
-    card.classList.toggle("disabled");
-  });
+connectMidi();
 
-  muteButton.addEventListener("click", () => {
-    muteButton.classList.toggle("active");
-  });
-
-  soloButton.addEventListener("click", () => {
-    soloButton.classList.toggle("active");
-
-    const anySolo = [...document.querySelectorAll(".solo-button")]
-      .some((button) => button.classList.contains("active"));
-
-    document.querySelectorAll(".layer-card").forEach((otherCard) => {
-      const otherSolo = otherCard.querySelector(".solo-button")
-        .classList.contains("active");
-
-      otherCard.classList.toggle("solo-dim", anySolo && !otherSolo);
-    });
-  });
-
-  volumeSlider.addEventListener("input", () => {
-    volumeValue.textContent = `${volumeSlider.value}%`;
-  });
-});
-
-// Initial state
-setEngineState("inactive", "Ready for activation");
-masterValue.textContent = `${masterVolume.value}%`;
-holdValue.textContent = holdSlider.value;
+updateIndicators("idle");
