@@ -521,3 +521,31 @@ button {
     gap: 8px;
   }
 }
+
+/* Editable layer names */
+
+.layer-name-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-top: 5px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: clamp(12px, 1.2vw, 17px);
+  font-weight: 550;
+  text-overflow: ellipsis;
+}
+
+.layer-name-input:focus {
+  border-bottom-color: var(--accent);
+}
+
+.layer-name-input:hover {
+  border-bottom-color: var(--border);
+}
+
