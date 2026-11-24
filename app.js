@@ -29,24 +29,41 @@ const layers = layerSettings.map((settings, index) => {
           maxlength="30"
         />
       </div>
-      <button class="sample-button" type="button">+ LOAD SAMPLE</button>
     </div>
 
     <div class="sample-name">No sample loaded</div>
-    <div class="waveform-placeholder">LOAD AUDIO SAMPLE</div>
+
+    <button
+      class="waveform-placeholder sample-loader"
+      type="button"
+      aria-label="Load audio sample for ${settings.name}"
+    >
+      <span class="waveform-label">LOAD AUDIO SAMPLE</span>
+      <span class="sample-add-button" aria-hidden="true">+</span>
+    </button>
+
+    <input
+      class="sample-file-input"
+      type="file"
+      accept="audio/*"
+      hidden
+    />
 
     <div class="fader-section">
       <span class="fader-label">VOLUME</span>
+
       <div class="fader-unit">
         <div class="db-scale" aria-hidden="true"></div>
 
-        <div class="fader-track"
+        <div
+          class="fader-track"
           role="slider"
           tabindex="0"
           aria-label="${settings.name} volume"
           aria-valuemin="-60"
           aria-valuemax="0"
-          aria-orientation="vertical">
+          aria-orientation="vertical"
+        >
           <div class="fader-fill"></div>
           <div class="fader-cap"></div>
         </div>
@@ -56,10 +73,17 @@ const layers = layerSettings.map((settings, index) => {
     </div>
 
     <div class="layer-buttons">
-      <button class="layer-action mute-button" type="button"
-        aria-pressed="false">MUTE</button>
-      <button class="layer-action solo-button" type="button"
-        aria-pressed="false">SOLO</button>
+      <button
+        class="layer-action mute-button"
+        type="button"
+        aria-pressed="false"
+      >MUTE</button>
+
+      <button
+        class="layer-action solo-button"
+        type="button"
+        aria-pressed="false"
+      >SOLO</button>
     </div>
   `;
 
@@ -70,6 +94,7 @@ const layers = layerSettings.map((settings, index) => {
     db: settings.db,
     muted: false,
     solo: false,
+    sampleFile: null,
     track: card.querySelector(".fader-track"),
     cap: card.querySelector(".fader-cap"),
     fill: card.querySelector(".fader-fill"),
@@ -77,7 +102,10 @@ const layers = layerSettings.map((settings, index) => {
     scale: card.querySelector(".db-scale"),
     muteButton: card.querySelector(".mute-button"),
     soloButton: card.querySelector(".solo-button"),
-    nameInput: card.querySelector(".layer-name-input")
+    nameInput: card.querySelector(".layer-name-input"),
+    sampleName: card.querySelector(".sample-name"),
+    sampleLoader: card.querySelector(".sample-loader"),
+    sampleInput: card.querySelector(".sample-file-input")
   };
 });
 
@@ -151,16 +179,48 @@ function setFaderFromPointer(layer, clientY) {
   drawFader(layer);
 }
 
-// Initialize faders and layer buttons.
+// Initialize faders, sample loaders, and layer buttons.
 
 layers.forEach(layer => {
   drawFader(layer);
 
   // Editable layer names
+
   layer.nameInput.addEventListener("input", () => {
     const name = layer.nameInput.value.trim() || "Unnamed Layer";
     layer.track.setAttribute("aria-label", `${name} volume`);
+    layer.sampleLoader.setAttribute(
+      "aria-label",
+      `Load or replace audio sample for ${name}`
+    );
   });
+
+  // Sample loading
+
+  layer.sampleLoader.addEventListener("click", () => {
+    layer.sampleInput.click();
+  });
+
+  layer.sampleInput.addEventListener("change", event => {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    layer.sampleFile = file;
+    layer.sampleName.textContent = file.name;
+
+    layer.sampleLoader.classList.add("has-sample");
+
+    layer.sampleLoader.querySelector(".waveform-label").textContent =
+      "SAMPLE LOADED · CLICK TO REPLACE";
+
+    layer.sampleLoader.setAttribute(
+      "aria-label",
+      `Replace audio sample: ${file.name}`
+    );
+  });
+
+  // Fader pointer controls
 
   layer.track.addEventListener("pointerdown", event => {
     event.preventDefault();
@@ -173,6 +233,8 @@ layers.forEach(layer => {
       setFaderFromPointer(layer, event.clientY);
     }
   });
+
+  // Keyboard fader controls
 
   layer.track.addEventListener("keydown", event => {
     let nextDb = layer.db;
@@ -198,15 +260,21 @@ layers.forEach(layer => {
     drawFader(layer);
   });
 
+  // Mute
+
   layer.muteButton.addEventListener("click", () => {
     layer.muted = !layer.muted;
+
     layer.muteButton.classList.toggle("active", layer.muted);
     layer.card.classList.toggle("muted", layer.muted);
     layer.muteButton.setAttribute("aria-pressed", layer.muted);
   });
 
+  // Solo
+
   layer.soloButton.addEventListener("click", () => {
     layer.solo = !layer.solo;
+
     layer.soloButton.classList.toggle("active", layer.solo);
     layer.soloButton.setAttribute("aria-pressed", layer.solo);
   });
