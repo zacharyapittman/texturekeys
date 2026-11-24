@@ -8,6 +8,10 @@ const layerSettings = [
 
 const layersGrid = document.getElementById("layers-grid");
 
+if (!layersGrid) {
+  throw new Error("TextureKeys: layers-grid element was not found.");
+}
+
 const layers = layerSettings.map((settings, index) => {
   const card = document.createElement("article");
   card.className = "layer-card";
@@ -27,22 +31,30 @@ const layers = layerSettings.map((settings, index) => {
 
     <div class="fader-section">
       <span class="fader-label">VOLUME</span>
+
       <div class="fader-unit">
         <div class="db-scale" aria-hidden="true"></div>
-        <div class="fader-track" role="slider" tabindex="0"
+
+        <div class="fader-track"
+          role="slider"
+          tabindex="0"
           aria-label="${settings.name} volume"
-          aria-valuemin="-60" aria-valuemax="0"
+          aria-valuemin="-60"
+          aria-valuemax="0"
           aria-orientation="vertical">
           <div class="fader-fill"></div>
           <div class="fader-cap"></div>
         </div>
       </div>
+
       <div class="fader-readout"></div>
     </div>
 
     <div class="layer-buttons">
-      <button class="layer-action mute-button" type="button">MUTE</button>
-      <button class="layer-action solo-button" type="button">SOLO</button>
+      <button class="layer-action mute-button" type="button"
+        aria-pressed="false">MUTE</button>
+      <button class="layer-action solo-button" type="button"
+        aria-pressed="false">SOLO</button>
     </div>
   `;
 
@@ -63,6 +75,8 @@ const layers = layerSettings.map((settings, index) => {
   };
 });
 
+// Fader scale
+
 const TICKS = [0, -3, -6, -12, -18, -24, -36, -60];
 
 function positionFromDb(db) {
@@ -80,11 +94,19 @@ function formatDb(db) {
 
 function drawFader(layer) {
   const trackHeight = layer.track.clientHeight;
+
+  if (!trackHeight) return;
+
   const position = positionFromDb(layer.db);
-  const y = position * trackHeight;
+
+  // Keep the cap fully inside the track.
+  const inset = 8;
+  const usableHeight = trackHeight - inset * 2;
+  const y = inset + position * usableHeight;
 
   layer.cap.style.top = `${y}px`;
   layer.fill.style.height = `${trackHeight - y}px`;
+
   layer.readout.textContent = formatDb(layer.db);
 
   layer.track.setAttribute("aria-valuenow", layer.db.toFixed(1));
@@ -101,7 +123,7 @@ function drawFader(layer) {
     if (tick === 0) mark.classList.add("unity");
 
     const tickPosition = positionFromDb(tick);
-    mark.style.top = `${tickPosition * trackHeight}px`;
+    mark.style.top = `${inset + tickPosition * usableHeight}px`;
     mark.textContent = tick === -60 ? "−∞" : String(tick);
 
     layer.scale.appendChild(mark);
@@ -110,14 +132,20 @@ function drawFader(layer) {
 
 function setFaderFromPointer(layer, clientY) {
   const rect = layer.track.getBoundingClientRect();
-  const position = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+  const inset = 8;
+  const usableHeight = rect.height - inset * 2;
 
-  layer.db = position >= 0.999
-    ? -60
-    : dbFromPosition(position);
+  const position = Math.max(
+    0,
+    Math.min(1, (clientY - rect.top - inset) / usableHeight)
+  );
+
+  layer.db = position >= 0.999 ? -60 : dbFromPosition(position);
 
   drawFader(layer);
 }
+
+// Initialize faders and layer buttons.
 
 layers.forEach(layer => {
   drawFader(layer);
@@ -193,7 +221,7 @@ function hasLiveInput() {
 }
 
 function cancelHoldTimer() {
-  if (holdTimer) {
+  if (holdTimer !== null) {
     clearTimeout(holdTimer);
     holdTimer = null;
   }
@@ -252,7 +280,7 @@ function activationChanged() {
   }
 }
 
-// Touchscreen Hold control
+// Touchscreen Hold
 
 holdButton.addEventListener("pointerdown", event => {
   event.preventDefault();
@@ -275,8 +303,10 @@ holdButton.addEventListener("lostpointercapture", releaseTouchHold);
 
 latchButton.addEventListener("click", () => {
   latchEnabled = !latchEnabled;
+
   latchStatus.textContent = latchEnabled ? "ON" : "OFF";
   latchButton.classList.toggle("selected", latchEnabled);
+
   activationChanged();
 });
 
@@ -316,7 +346,7 @@ holdTimeSlider.addEventListener("input", () => {
   holdDuration = Number(holdTimeSlider.value);
   updateHoldDisplay();
 
-  if (!hasLiveInput() && !latchEnabled && holdTimer) {
+  if (!hasLiveInput() && !latchEnabled && holdTimer !== null) {
     startReleaseTimer();
   }
 });
@@ -327,7 +357,6 @@ updateHoldDisplay();
 
 async function connectMidi() {
   if (!navigator.requestMIDIAccess) {
-    engineStatus.textContent = "MIDI UNSUPPORTED";
     return;
   }
 
@@ -338,12 +367,16 @@ async function connectMidi() {
       input.onmidimessage = event => {
         const [status, data1, data2] = event.data;
         const command = status & 0xf0;
+        const noteId = `${input.id}-${data1}`;
 
         if (command === 0x90 && data2 > 0) {
-          midiNotes.add(`${input.id}-${data1}`);
+          midiNotes.add(noteId);
           activationChanged();
-        } else if (command === 0x80 || (command === 0x90 && data2 === 0)) {
-          midiNotes.delete(`${input.id}-${data1}`);
+        } else if (
+          command === 0x80 ||
+          (command === 0x90 && data2 === 0)
+        ) {
+          midiNotes.delete(noteId);
           activationChanged();
         } else if (command === 0xb0 && data1 === 64) {
           sustainDown = data2 >= 64;
@@ -355,21 +388,36 @@ async function connectMidi() {
     midi.inputs.forEach(attachInput);
 
     midi.onstatechange = event => {
-      if (event.port.type === "input" && event.port.state === "connected") {
+      if (
+        event.port.type === "input" &&
+        event.port.state === "connected"
+      ) {
         attachInput(event.port);
       }
 
-      if (event.port.type === "input" && event.port.state === "disconnected") {
+      if (
+        event.port.type === "input" &&
+        event.port.state === "disconnected"
+      ) {
         midiNotes.clear();
         sustainDown = false;
         activationChanged();
       }
     };
   } catch (error) {
-    engineStatus.textContent = "MIDI UNAVAILABLE";
+    console.warn("TextureKeys could not access MIDI:", error);
   }
 }
 
 connectMidi();
-
 updateIndicators("idle");
+
+// Redraw faders if their dimensions change.
+
+if ("ResizeObserver" in window) {
+  const resizeObserver = new ResizeObserver(() => {
+    layers.forEach(drawFader);
+  });
+
+  layers.forEach(layer => resizeObserver.observe(layer.track));
+}
