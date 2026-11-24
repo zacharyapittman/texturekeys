@@ -10,7 +10,6 @@
 </head>
 <body>
   <main class="app-shell">
-
     <header class="topbar">
       <div class="brand">
         <div class="brand-mark">T</div>
@@ -18,15 +17,13 @@
       </div>
 
       <div class="top-controls">
-        <div class="engine-indicator" id="engine-indicator">
+        <div class="engine-indicator">
           <span class="status-light" id="status-light"></span>
           <span id="engine-status">READY</span>
         </div>
-
         <button class="utility-button" id="hold-settings-button">
           HOLD TIME <span id="hold-value">1.5s</span>
         </button>
-
         <button class="utility-button" id="latch-button">
           LATCH <span id="latch-status">OFF</span>
         </button>
@@ -42,112 +39,11 @@
         <span class="layer-count">4 LAYERS</span>
       </div>
 
-      <div class="layers-grid">
-
-        <article class="layer-card" data-layer="1">
-          <div class="layer-header">
-            <div>
-              <span class="layer-number">01</span>
-              <h2>Layer One</h2>
-            </div>
-            <button class="sample-button">+ LOAD SAMPLE</button>
-          </div>
-          <div class="sample-name">No sample loaded</div>
-          <div class="waveform-placeholder">LOAD AUDIO SAMPLE</div>
-          <div class="layer-controls">
-            <div class="fader-area">
-              <span class="fader-label">VOLUME</span>
-              <div class="fader-track">
-                <input class="layer-volume" type="range" min="0" max="100" value="75">
-              </div>
-              <span class="volume-value">75%</span>
-            </div>
-            <div class="layer-buttons">
-              <button class="layer-action mute-button">MUTE</button>
-              <button class="layer-action solo-button">SOLO</button>
-            </div>
-          </div>
-        </article>
-
-        <article class="layer-card" data-layer="2">
-          <div class="layer-header">
-            <div>
-              <span class="layer-number">02</span>
-              <h2>Layer Two</h2>
-            </div>
-            <button class="sample-button">+ LOAD SAMPLE</button>
-          </div>
-          <div class="sample-name">No sample loaded</div>
-          <div class="waveform-placeholder">LOAD AUDIO SAMPLE</div>
-          <div class="layer-controls">
-            <div class="fader-area">
-              <span class="fader-label">VOLUME</span>
-              <div class="fader-track">
-                <input class="layer-volume" type="range" min="0" max="100" value="65">
-              </div>
-              <span class="volume-value">65%</span>
-            </div>
-            <div class="layer-buttons">
-              <button class="layer-action mute-button">MUTE</button>
-              <button class="layer-action solo-button">SOLO</button>
-            </div>
-          </div>
-        </article>
-
-        <article class="layer-card" data-layer="3">
-          <div class="layer-header">
-            <div>
-              <span class="layer-number">03</span>
-              <h2>Layer Three</h2>
-            </div>
-            <button class="sample-button">+ LOAD SAMPLE</button>
-          </div>
-          <div class="sample-name">No sample loaded</div>
-          <div class="waveform-placeholder">LOAD AUDIO SAMPLE</div>
-          <div class="layer-controls">
-            <div class="fader-area">
-              <span class="fader-label">VOLUME</span>
-              <div class="fader-track">
-                <input class="layer-volume" type="range" min="0" max="100" value="55">
-              </div>
-              <span class="volume-value">55%</span>
-            </div>
-            <div class="layer-buttons">
-              <button class="layer-action mute-button">MUTE</button>
-              <button class="layer-action solo-button">SOLO</button>
-            </div>
-          </div>
-        </article>
-
-        <article class="layer-card" data-layer="4">
-          <div class="layer-header">
-            <div>
-              <span class="layer-number">04</span>
-              <h2>Layer Four</h2>
-            </div>
-            <button class="sample-button">+ LOAD SAMPLE</button>
-          </div>
-          <div class="sample-name">No sample loaded</div>
-          <div class="waveform-placeholder">LOAD AUDIO SAMPLE</div>
-          <div class="layer-controls">
-            <div class="fader-area">
-              <span class="fader-label">VOLUME</span>
-              <div class="fader-track">
-                <input class="layer-volume" type="range" min="0" max="100" value="45">
-              </div>
-              <span class="volume-value">45%</span>
-            </div>
-            <div class="layer-buttons">
-              <button class="layer-action mute-button">MUTE</button>
-              <button class="layer-action solo-button">SOLO</button>
-            </div>
-          </div>
-        </article>
-
-      </div>
+      <div class="layers-grid" id="layers-grid"></div>
     </section>
 
-    <button class="hold-control" id="hold-button" aria-label="Press and hold to activate textures">
+    <button class="hold-control" id="hold-button"
+      aria-label="Press and hold to activate textures">
       <span class="hold-light" id="hold-light"></span>
       <span>HOLD</span>
     </button>
@@ -158,13 +54,13 @@
         <button id="close-hold-settings" aria-label="Close">×</button>
       </div>
       <div class="hold-time-value" id="hold-popover-value">1500 ms</div>
-      <input id="hold-time" type="range" min="0" max="5000" step="1" value="1500">
+      <input id="hold-time" type="range" min="0" max="5000"
+        step="1" value="1500">
       <div class="range-labels">
         <span>0 ms</span>
         <span>5000 ms</span>
       </div>
     </div>
-
   </main>
 
   <script src="app.js"></script>
