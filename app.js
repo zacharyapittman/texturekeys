@@ -1,4 +1,3 @@
-
 const layerSettings = [
   { name: "Layer One", db: -6 },
   { name: "Layer Two", db: -12 },
