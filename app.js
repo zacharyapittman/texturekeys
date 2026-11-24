@@ -38,6 +38,8 @@ const layers = layerSettings.map((settings, index) => {
     <div class="fader-section">
       <span class="fader-label">VOLUME</span>
       <div class="fader-unit">
+        <div class="db-scale" aria-hidden="true"></div>
+
         <div class="fader-track"
           role="slider"
           tabindex="0"
@@ -50,7 +52,7 @@ const layers = layerSettings.map((settings, index) => {
         </div>
       </div>
 
-      <div class="fader-readout"></div>
+      <div class="fader-readout" aria-hidden="true"></div>
     </div>
 
     <div class="layer-buttons">
@@ -72,13 +74,16 @@ const layers = layerSettings.map((settings, index) => {
     cap: card.querySelector(".fader-cap"),
     fill: card.querySelector(".fader-fill"),
     readout: card.querySelector(".fader-readout"),
+    scale: card.querySelector(".db-scale"),
     muteButton: card.querySelector(".mute-button"),
     soloButton: card.querySelector(".solo-button"),
     nameInput: card.querySelector(".layer-name-input")
   };
 });
 
-// Fader functions
+// Fader scale
+
+const TICKS = [0, -3, -6, -12, -18, -24, -36, -60];
 
 function positionFromDb(db) {
   return Math.sqrt(Math.abs(db) / 60);
@@ -106,10 +111,29 @@ function drawFader(layer) {
   layer.cap.style.top = `${y}px`;
   layer.fill.style.height = `${trackHeight - y}px`;
 
+  // Keep the value available for accessibility.
   layer.readout.textContent = formatDb(layer.db);
 
   layer.track.setAttribute("aria-valuenow", layer.db.toFixed(1));
   layer.track.setAttribute("aria-valuetext", formatDb(layer.db));
+
+  // Draw the scale markings.
+  layer.scale.innerHTML = "";
+
+  TICKS.forEach((tick, index) => {
+    const mark = document.createElement("span");
+    mark.className = "db-tick";
+
+    if (index === 0) mark.classList.add("top");
+    if (index === TICKS.length - 1) mark.classList.add("bottom");
+    if (tick === 0) mark.classList.add("unity");
+
+    const tickPosition = positionFromDb(tick);
+    mark.style.top = `${inset + tickPosition * usableHeight}px`;
+    mark.textContent = tick === -60 ? "−∞" : String(tick);
+
+    layer.scale.appendChild(mark);
+  });
 }
 
 function setFaderFromPointer(layer, clientY) {
@@ -127,12 +151,12 @@ function setFaderFromPointer(layer, clientY) {
   drawFader(layer);
 }
 
-// Initialize faders and layer buttons
+// Initialize faders and layer buttons.
 
 layers.forEach(layer => {
   drawFader(layer);
 
-  // Editable layer name
+  // Editable layer names
   layer.nameInput.addEventListener("input", () => {
     const name = layer.nameInput.value.trim() || "Unnamed Layer";
     layer.track.setAttribute("aria-label", `${name} volume`);
@@ -431,7 +455,7 @@ async function connectMidi() {
 connectMidi();
 updateIndicators("idle");
 
-// Redraw faders if their dimensions change
+// Redraw faders if their dimensions change.
 
 if ("ResizeObserver" in window) {
   const resizeObserver = new ResizeObserver(() => {
