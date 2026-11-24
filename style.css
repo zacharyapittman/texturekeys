@@ -285,47 +285,19 @@ button {
   margin-bottom: 12px;
 }
 
+/* Fader layout: no numeric scale */
+
 .fader-unit {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 0;
   height: 220px;
   width: 100%;
 }
 
 .db-scale {
-  display: none;
-}
-
-.db-tick {
-  position: absolute;
-  right: 0;
-  transform: translateY(-50%);
-  white-space: nowrap;
-}
-
-.db-tick::after {
-  content: "";
-  display: inline-block;
-  width: 5px;
-  height: 1px;
-  background: #737373;
-  margin-left: 4px;
-  vertical-align: middle;
-}
-
-.db-tick.top {
-  transform: translateY(0);
-}
-
-.db-tick.bottom {
-  transform: translateY(-100%);
-}
-
-.db-tick.unity {
-  color: var(--text);
-  font-weight: 700;
+  display: none !important;
 }
 
 /* Vertical fader */
@@ -545,6 +517,6 @@ button {
   }
 
   .fader-unit {
-    gap: 8px;
+    gap: 0;
   }
 }
