@@ -295,6 +295,7 @@ button {
 }
 
 .db-scale {
+  display: none;
   position: relative;
   height: 200px;
   width: 34px;
