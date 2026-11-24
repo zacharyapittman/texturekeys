@@ -1,3 +1,4 @@
+
 :root {
   --background: #151515;
   --panel: #202020;
@@ -21,7 +22,8 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-button, input {
+button,
+input {
   font: inherit;
 }
 
@@ -229,21 +231,7 @@ button {
   color: var(--background);
 }
 
-.sample-button {
-  flex: 0 0 auto;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  background: transparent;
-  border-radius: 5px;
-  padding: 7px 8px;
-  font-size: 9px;
-  white-space: nowrap;
-}
-
-.sample-button:hover {
-  color: var(--text);
-  border-color: #777;
-}
+/* Sample name */
 
 .sample-name {
   color: var(--muted);
@@ -254,18 +242,99 @@ button {
   white-space: nowrap;
 }
 
+/* Sample loading area */
+
 .waveform-placeholder {
+  position: relative;
+  width: 100%;
   height: 55px;
   flex: 0 0 auto;
   margin-top: 12px;
+  padding: 0 38px 0 8px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--panel-light);
   color: #777;
-  display: grid;
-  place-items: center;
+
+  font-family: inherit;
   font-size: 9px;
   letter-spacing: 1px;
+  text-align: center;
+
+  appearance: none;
+  cursor: pointer;
+  overflow: hidden;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
+
+.waveform-placeholder:hover {
+  border-color: #666;
+  background: #303030;
+}
+
+.waveform-placeholder:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.waveform-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.sample-add-button {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+
+  width: clamp(22px, 18%, 30px);
+  aspect-ratio: 1;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid #4a4a4a;
+  border-radius: 5px;
+
+  background: #343434;
+  color: var(--text);
+
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 400;
+  line-height: 1;
+
+  box-shadow: 0 2px 5px #0005;
+  pointer-events: none;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.waveform-placeholder:hover .sample-add-button {
+  background: #414141;
+  border-color: #666;
+}
+
+.waveform-placeholder.has-sample {
+  border-color: #71865c;
+}
+
+.waveform-placeholder.has-sample .sample-add-button {
+  color: var(--accent);
+  border-color: #71865c;
+}
+
+/* Fader section */
 
 .fader-section {
   flex: 1;
@@ -414,6 +483,8 @@ button {
 .fader-readout {
   display: none !important;
 }
+
+/* Mute and solo buttons */
 
 .layer-buttons {
   display: flex;
