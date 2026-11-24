@@ -96,7 +96,9 @@ function beginHoldTimer() {
     engineDetail.textContent = `Fading in ${Math.ceil(remaining)} ms`;
 
     if (remaining <= 0) {
-      clearHoldTimer();
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerEnd = null;
     }
   }, 20);
 
