@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,44 +9,41 @@
 </head>
 <body>
   <main class="app-shell">
-
     <header class="topbar">
       <div class="brand">
         <div class="brand-mark">T</div>
         <span>TextureKeys</span>
       </div>
-
       <div class="top-controls">
         <div class="engine-indicator">
           <span class="status-light" id="status-light"></span>
           <span id="engine-status">READY</span>
         </div>
-
-        <button class="utility-button" id="hold-settings-button">
+        <button class="utility-button" id="hold-settings-button" type="button">
           HOLD TIME <span id="hold-value">1.5s</span>
         </button>
-
-        <button class="utility-button" id="latch-button">
+        <button class="utility-button" id="latch-button" type="button">
           LATCH <span id="latch-status">OFF</span>
         </button>
       </div>
     </header>
 
-    <section class="layers-section">
-      <div class="section-heading">
-        <div>
-          <h1>Textures</h1>
-          <p>Blend your sound layers</p>
+    <section class="layers-section" aria-label="Sound layers">
+      <div class="layer-toolbar">
+        <div class="layer-count" id="layer-count">4 LAYERS</div>
+        <div class="layer-count-controls">
+          <button class="layer-count-button" id="remove-layer" type="button"
+            aria-label="Remove last layer" title="Remove last layer">−</button>
+          <button class="layer-count-button" id="add-layer" type="button"
+            aria-label="Add layer" title="Add layer">+</button>
         </div>
-        <span class="layer-count">4 LAYERS</span>
       </div>
-
       <div class="layers-scroll">
         <div class="layers-grid" id="layers-grid"></div>
       </div>
     </section>
 
-    <button class="hold-control" id="hold-button"
+    <button class="hold-control" id="hold-button" type="button"
       aria-label="Press and hold to activate textures">
       <span class="hold-light" id="hold-light"></span>
       <span>HOLD</span>
@@ -56,22 +52,16 @@
     <div class="hold-popover" id="hold-popover" hidden>
       <div class="popover-heading">
         <strong>Global Hold Time</strong>
-        <button id="close-hold-settings" aria-label="Close">×</button>
+        <button id="close-hold-settings" type="button" aria-label="Close">×</button>
       </div>
-
       <div class="hold-time-value" id="hold-popover-value">1500 ms</div>
-
-      <input id="hold-time" type="range"
-        min="0" max="5000" step="1" value="1500">
-
+      <input id="hold-time" type="range" min="0" max="5000" step="1" value="1500">
       <div class="range-labels">
         <span>0 ms</span>
         <span>5000 ms</span>
       </div>
     </div>
-
   </main>
-
   <script src="app.js"></script>
 </body>
 </html>
