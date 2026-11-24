@@ -38,8 +38,6 @@ const layers = layerSettings.map((settings, index) => {
     <div class="fader-section">
       <span class="fader-label">VOLUME</span>
       <div class="fader-unit">
-        <div class="db-scale" aria-hidden="true"></div>
-
         <div class="fader-track"
           role="slider"
           tabindex="0"
@@ -74,16 +72,13 @@ const layers = layerSettings.map((settings, index) => {
     cap: card.querySelector(".fader-cap"),
     fill: card.querySelector(".fader-fill"),
     readout: card.querySelector(".fader-readout"),
-    scale: card.querySelector(".db-scale"),
     muteButton: card.querySelector(".mute-button"),
     soloButton: card.querySelector(".solo-button"),
     nameInput: card.querySelector(".layer-name-input")
   };
 });
 
-// Fader scale
-
-const TICKS = [0, -3, -6, -12, -18, -24, -36, -60];
+// Fader functions
 
 function positionFromDb(db) {
   return Math.sqrt(Math.abs(db) / 60);
@@ -103,11 +98,9 @@ function drawFader(layer) {
 
   if (!trackHeight) return;
 
-  const position = positionFromDb(layer.db);
-
-  // Keep the cap fully inside the track.
   const inset = 8;
   const usableHeight = trackHeight - inset * 2;
+  const position = positionFromDb(layer.db);
   const y = inset + position * usableHeight;
 
   layer.cap.style.top = `${y}px`;
@@ -117,23 +110,6 @@ function drawFader(layer) {
 
   layer.track.setAttribute("aria-valuenow", layer.db.toFixed(1));
   layer.track.setAttribute("aria-valuetext", formatDb(layer.db));
-
-  layer.scale.innerHTML = "";
-
-  TICKS.forEach((tick, index) => {
-    const mark = document.createElement("span");
-    mark.className = "db-tick";
-
-    if (index === 0) mark.classList.add("top");
-    if (index === TICKS.length - 1) mark.classList.add("bottom");
-    if (tick === 0) mark.classList.add("unity");
-
-    const tickPosition = positionFromDb(tick);
-    mark.style.top = `${inset + tickPosition * usableHeight}px`;
-    mark.textContent = tick === -60 ? "−∞" : String(tick);
-
-    layer.scale.appendChild(mark);
-  });
 }
 
 function setFaderFromPointer(layer, clientY) {
@@ -151,7 +127,7 @@ function setFaderFromPointer(layer, clientY) {
   drawFader(layer);
 }
 
-// Initialize faders and layer buttons.
+// Initialize faders and layer buttons
 
 layers.forEach(layer => {
   drawFader(layer);
@@ -286,7 +262,6 @@ function startReleaseTimer() {
 
   updateIndicators("fading");
 
-  // Update the visible countdown 20 times per second.
   releaseCountdownInterval = setInterval(() => {
     if (hasLiveInput() || latchEnabled) {
       cancelHoldTimer();
@@ -456,7 +431,7 @@ async function connectMidi() {
 connectMidi();
 updateIndicators("idle");
 
-// Redraw faders if their dimensions change.
+// Redraw faders if their dimensions change
 
 if ("ResizeObserver" in window) {
   const resizeObserver = new ResizeObserver(() => {
