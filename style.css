@@ -1,13 +1,13 @@
 
 :root {
-  --background: #151615;
-  --panel: #202220;
-  --panel-light: #292c29;
-  --border: #393d39;
-  --text: #e5e7e4;
-  --muted: #929892;
+  --background: #151515;
+  --panel: #202020;
+  --panel-light: #292929;
+  --border: #393939;
+  --text: #e5e5e5;
+  --muted: #929292;
   --accent: #a5c982;
-  --track: #101210;
+  --track: #101010;
 }
 
 * {
@@ -22,20 +22,26 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-button, input { font: inherit; }
-button { cursor: pointer; }
+button, input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
 
 .app-shell {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 28px 32px 70px;
+  padding: 28px 32px 80px;
 }
 
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--border);
 }
@@ -54,7 +60,7 @@ button { cursor: pointer; }
   display: grid;
   place-items: center;
   border-radius: 7px;
-  background: #343934;
+  background: #343434;
   color: var(--text);
   font-weight: 800;
 }
@@ -81,7 +87,7 @@ button { cursor: pointer; }
   height: 9px;
   flex: 0 0 auto;
   border-radius: 50%;
-  background: #626762;
+  background: #626262;
 }
 
 .status-light.active,
@@ -144,24 +150,31 @@ button { cursor: pointer; }
   letter-spacing: 1.2px;
 }
 
-/* Four permanent side-by-side channel strips */
+/* Four channel strips */
+
+.layers-scroll {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
 
 .layers-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(7px, 1.3vw, 18px);
+  gap: 16px;
   width: 100%;
+  min-width: 680px;
 }
 
 .layer-card {
   min-width: 0;
-  min-height: 450px;
+  min-height: 460px;
   display: flex;
   flex-direction: column;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 9px;
-  padding: clamp(9px, 1.3vw, 19px);
+  padding: 15px;
 }
 
 .layer-header {
@@ -177,7 +190,7 @@ button { cursor: pointer; }
 
 .layer-header h2 {
   margin: 5px 0 0;
-  font-size: clamp(11px, 1.2vw, 17px);
+  font-size: clamp(12px, 1.2vw, 17px);
   font-weight: 550;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -191,13 +204,13 @@ button { cursor: pointer; }
   background: transparent;
   border-radius: 5px;
   padding: 7px 8px;
-  font-size: clamp(8px, .7vw, 10px);
+  font-size: 9px;
   white-space: nowrap;
 }
 
 .sample-button:hover {
   color: var(--text);
-  border-color: #777e77;
+  border-color: #777;
 }
 
 .sample-name {
@@ -210,12 +223,12 @@ button { cursor: pointer; }
 }
 
 .waveform-placeholder {
-  height: clamp(38px, 5vw, 66px);
+  height: 55px;
   flex: 0 0 auto;
   margin-top: 12px;
   border-radius: 5px;
   background: var(--panel-light);
-  color: #777e77;
+  color: #777;
   display: grid;
   place-items: center;
   font-size: 9px;
@@ -229,7 +242,7 @@ button { cursor: pointer; }
   align-items: center;
   justify-content: center;
   padding: 15px 0 12px;
-  min-height: 260px;
+  min-height: 270px;
 }
 
 .fader-label {
@@ -243,7 +256,7 @@ button { cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(5px, 1vw, 13px);
+  gap: 12px;
   height: 220px;
   width: 100%;
 }
@@ -270,14 +283,25 @@ button { cursor: pointer; }
   display: inline-block;
   width: 5px;
   height: 1px;
-  background: #737973;
+  background: #737373;
   margin-left: 4px;
   vertical-align: middle;
 }
 
-.db-tick.top { transform: translateY(0); }
-.db-tick.bottom { transform: translateY(-100%); }
-.db-tick.unity { color: var(--text); font-weight: 700; }
+.db-tick.top {
+  transform: translateY(0);
+}
+
+.db-tick.bottom {
+  transform: translateY(-100%);
+}
+
+.db-tick.unity {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Vertical fader */
 
 .fader-track {
   position: relative;
@@ -286,7 +310,7 @@ button { cursor: pointer; }
   flex: 0 0 14px;
   border-radius: 3px;
   background: var(--track);
-  border: 1px solid #414641;
+  border: 1px solid #414141;
   box-shadow: inset 0 1px 4px #0009;
   cursor: ns-resize;
   touch-action: none;
@@ -300,7 +324,7 @@ button { cursor: pointer; }
   bottom: 3px;
   width: 2px;
   transform: translateX(-50%);
-  background: #4b514b;
+  background: #4b4b4b;
 }
 
 .fader-fill {
@@ -309,7 +333,7 @@ button { cursor: pointer; }
   bottom: 0;
   width: 3px;
   transform: translateX(-50%);
-  background: #8da77a;
+  background: #8d8d8d;
   border-radius: 2px;
   pointer-events: none;
 }
@@ -317,8 +341,8 @@ button { cursor: pointer; }
 .fader-cap {
   position: absolute;
   left: 50%;
-  top: 0;
-  width: clamp(34px, 3.7vw, 48px);
+  top: 8px;
+  width: 46px;
   height: 17px;
   transform: translate(-50%, -50%);
   border-radius: 3px;
@@ -393,6 +417,8 @@ button { cursor: pointer; }
   opacity: .55;
 }
 
+/* Hold controls */
+
 .hold-control {
   position: fixed;
   bottom: 22px;
@@ -401,7 +427,7 @@ button { cursor: pointer; }
   align-items: center;
   gap: 8px;
   padding: 9px 12px;
-  background: #242724;
+  background: #242424;
   border: 1px solid var(--border);
   border-radius: 25px;
   color: var(--muted);
@@ -423,14 +449,16 @@ button { cursor: pointer; }
   bottom: 70px;
   width: 260px;
   padding: 17px;
-  background: #242724;
+  background: #242424;
   border: 1px solid var(--border);
   border-radius: 10px;
   box-shadow: 0 12px 40px #0008;
   z-index: 10;
 }
 
-.hold-popover[hidden] { display: none; }
+.hold-popover[hidden] {
+  display: none;
+}
 
 .popover-heading {
   display: flex;
@@ -463,37 +491,33 @@ button { cursor: pointer; }
   font-size: 10px;
 }
 
-/* Keep the four channels in one row even on narrow screens. */
+/* Narrow screens: scroll, never stack */
 
 @media (max-width: 700px) {
   .app-shell {
     padding: 18px 12px 75px;
-    min-width: 520px;
   }
 
   .topbar {
-    gap: 15px;
+    align-items: flex-start;
     flex-wrap: wrap;
   }
 
   .top-controls {
+    flex-wrap: wrap;
     gap: 7px;
   }
 
+  .layers-grid {
+    gap: 10px;
+  }
+
   .layer-card {
-    min-height: 390px;
+    padding: 10px;
+    min-height: 420px;
   }
 
   .fader-unit {
-    height: 190px;
-  }
-
-  .db-scale,
-  .fader-track {
-    height: 175px;
-  }
-
-  .fader-section {
-    min-height: 230px;
+    gap: 8px;
   }
 }
