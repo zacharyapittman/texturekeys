@@ -1,0 +1,368 @@
+/* TextureKeys layout update: fit all layer strips in one row without scrolling. */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app-shell {
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(10px, 2vh, 24px) clamp(10px, 2vw, 28px) 66px;
+  overflow: hidden;
+}
+
+.topbar {
+  flex: 0 0 auto;
+  padding-bottom: clamp(10px, 1.8vh, 20px);
+}
+
+.layers-section {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-top: clamp(8px, 1.5vh, 18px);
+  display: flex;
+  flex-direction: column;
+}
+
+.layer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-bottom: clamp(7px, 1.2vh, 14px);
+}
+
+.layers-scroll {
+  width: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 0;
+}
+
+.layers-grid {
+  --layer-count: 4;
+  display: grid;
+  grid-template-columns: repeat(var(--layer-count), minmax(0, 1fr));
+  gap: clamp(4px, 1vw, 14px);
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.layer-card {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  padding: clamp(5px, 1vw, 14px);
+  overflow: hidden;
+}
+
+.layer-header {
+  min-width: 0;
+  gap: 3px;
+}
+
+.layer-heading-top {
+  gap: 4px;
+}
+
+.layer-name-row {
+  gap: clamp(3px, .4vw, 6px);
+  margin-top: clamp(3px, .5vh, 5px);
+}
+
+.layer-number {
+  font-size: clamp(7px, .65vw, 10px);
+}
+
+.layer-header h2,
+.layer-name-input {
+  font-size: clamp(9px, 1vw, 16px);
+}
+
+.sample-row {
+  margin-top: clamp(5px, 1vh, 12px);
+}
+
+.sample-name {
+  font-size: clamp(7px, .75vw, 11px);
+}
+
+.clip-edit-button {
+  padding: clamp(2px, .4vh, 4px) clamp(4px, .5vw, 7px);
+  font-size: clamp(6px, .6vw, 8px);
+}
+
+.clip-popover {
+  width: min(300px, calc(100vw - 16px));
+}
+
+.clip-waveform {
+  height: clamp(36px, 7vh, 54px);
+}
+
+.waveform-placeholder {
+  height: clamp(24px, 7vh, 55px);
+  margin-top: clamp(5px, 1vh, 12px);
+  font-size: clamp(6px, .65vw, 9px);
+}
+
+.sample-change-hint {
+  margin-top: clamp(3px, .6vh, 5px);
+  font-size: clamp(7px, .7vw, 9px);
+}
+
+.trim-bar {
+  height: clamp(12px, 1.6vh, 18px);
+}
+
+.trim-handle {
+  width: clamp(12px, 1.5vw, 16px);
+  height: clamp(12px, 1.5vw, 16px);
+}
+
+.trim-controls {
+  margin-top: clamp(3px, .5vh, 6px);
+  font-size: clamp(7px, .62vw, 9px);
+}
+
+.fader-section {
+  min-height: 0;
+  padding: clamp(5px, 1vh, 14px) 0;
+}
+
+.fader-label {
+  margin-bottom: clamp(2px, .4vh, 6px);
+  font-size: clamp(7px, .65vw, 9px);
+}
+
+.fader-unit {
+  height: 100%;
+  min-height: 90px;
+  flex: 1 1 auto;
+  gap: clamp(3px, .65vw, 10px);
+  /* Keep the cap inside the unit at 0 dB / −∞ dB so the label and readout stay readable. */
+  padding: 11px 0;
+}
+
+.db-scale {
+  width: clamp(16px, 2.2vw, 34px);
+  flex-basis: clamp(16px, 2.2vw, 34px);
+  height: 100%;
+  min-height: 90px;
+  font-size: clamp(6px, .7vw, 10px);
+}
+
+.fader-track {
+  height: 100%;
+  min-height: 90px;
+  width: 12px;
+  flex-basis: 12px;
+}
+
+.fader-cap {
+  width: clamp(25px, 3.2vw, 46px);
+  height: clamp(12px, 1.4vw, 17px);
+}
+
+.fader-cap::after {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.fader-readout {
+  margin-top: clamp(2px, .4vh, 6px);
+  min-height: 16px;
+  font-size: clamp(9px, 1vw, 15px);
+}
+
+.layer-buttons {
+  gap: 4px;
+  padding-top: clamp(5px, .9vh, 12px);
+}
+
+.layer-action {
+  padding: clamp(5px, .7vh, 8px) 2px;
+  font-size: clamp(6px, .68vw, 9px);
+}
+
+.activate-button {
+  padding: clamp(3px, .45vh, 4px) clamp(5px, .6vw, 7px);
+  font-size: clamp(6px, .55vw, 8px);
+}
+
+.layer-count-controls {
+  display: flex;
+  gap: 5px;
+}
+
+.layer-count-button {
+  width: 28px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--text);
+  background: #242424;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.layer-count-button:hover:not(:disabled) {
+  border-color: #777;
+  background: #303030;
+}
+
+.layer-count-button:disabled {
+  opacity: .3;
+  cursor: not-allowed;
+}
+
+.adsr-button {
+  width: auto;
+  padding: 0 7px;
+  font-size: 9px;
+  letter-spacing: .5px;
+}
+
+.adsr-button.selected {
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+@media (max-width: 700px) {
+  .app-shell {
+    padding: 10px 8px 58px;
+  }
+
+  .topbar {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .brand {
+    gap: 6px;
+    font-size: clamp(11px, 2.4vw, 17px);
+  }
+
+  .brand-mark {
+    width: 26px;
+    height: 26px;
+  }
+
+  .top-controls {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  .io-controls {
+    left: 8px;
+    gap: 4px;
+  }
+
+  .output-popover,
+  .midi-popover {
+    right: auto;
+    left: 8px;
+  }
+
+  .session-popover {
+    left: 8px;
+    width: min(280px, calc(100vw - 16px));
+  }
+
+  .midi-popover {
+    width: min(320px, calc(100vw - 24px));
+    max-height: min(78vh, 520px);
+    padding: 14px;
+  }
+
+  .engine-indicator {
+    gap: 4px;
+    margin-right: 2px;
+    font-size: 7px;
+    letter-spacing: 0;
+  }
+
+  .utility-button {
+    padding: 6px 5px;
+    font-size: 7px;
+    letter-spacing: 0;
+  }
+
+  .layers-grid {
+    gap: 3px;
+  }
+
+  .layer-card {
+    padding: 4px 3px;
+    border-radius: 5px;
+  }
+
+  .layer-name-input {
+    font-size: clamp(7px, 1.7vw, 11px);
+  }
+
+  .layer-number {
+    letter-spacing: 0;
+  }
+
+  .db-scale {
+    width: clamp(12px, 2.8vw, 19px);
+    flex-basis: clamp(12px, 2.8vw, 19px);
+  }
+
+  .fader-unit {
+    gap: 2px;
+  }
+
+  .layer-count-button {
+    width: 24px;
+    height: 23px;
+  }
+
+  .adsr-button {
+    width: auto;
+    padding: 0 4px;
+    font-size: 7px;
+  }
+}
+
+@media (max-height: 520px) {
+  .app-shell {
+    padding-top: 6px;
+    padding-bottom: 48px;
+  }
+  .topbar {
+    padding-bottom: 6px;
+  }
+  .layers-section {
+    padding-top: 5px;
+  }
+  .waveform-placeholder {
+    height: 20px;
+  }
+  .hold-control {
+    bottom: 8px;
+    right: 10px;
+    padding: 6px 9px;
+  }
+  .io-controls {
+    bottom: 8px;
+    left: 10px;
+    gap: 4px;
+  }
+  .output-popover,
+  .midi-popover {
+    right: auto;
+    left: 10px;
+    bottom: 48px;
+  }
+}

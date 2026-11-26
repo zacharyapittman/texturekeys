@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#151515">
+  <title>TextureKeys</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style-overrides.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">T</div>
+        <span>TextureKeys</span>
+        <button class="utility-button brand-file-button" id="session-button" type="button">FILE</button>
+      </div>
+      <div class="top-controls">
+        <div class="engine-indicator">
+          <span class="status-light" id="status-light"></span>
+          <span id="engine-status">READY</span>
+        </div>
+        <button class="utility-button" id="hold-settings-button" type="button">
+          HOLD TIME <span id="hold-value">1.5s</span>
+        </button>
+        <button class="utility-button" id="drone-button" type="button" aria-pressed="false">
+          DRONE <span id="drone-status">OFF</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="layers-section" aria-label="Sound layers">
+      <div class="layer-toolbar">
+        <div class="layer-count" id="layer-count">4 LAYERS</div>
+        <div class="layer-count-controls">
+          <button class="layer-count-button adsr-button" id="adsr-button" type="button"
+            aria-label="ADSR settings" title="ADSR settings">ADSR</button>
+          <button class="layer-count-button" id="remove-layer" type="button"
+            aria-label="Remove last layer" title="Remove last layer">−</button>
+          <button class="layer-count-button" id="add-layer" type="button"
+            aria-label="Add layer" title="Add layer">+</button>
+        </div>
+      </div>
+      <div class="layers-scroll">
+        <div class="layers-grid" id="layers-grid"></div>
+      </div>
+    </section>
+
+    <div class="io-controls" aria-label="Input and output settings">
+      <button class="utility-button" id="output-settings-button" type="button">
+        OUTPUT <span id="output-summary">STEREO</span>
+      </button>
+      <button class="utility-button" id="midi-button" type="button" aria-pressed="false">
+        MIDI <span id="midi-summary">NONE</span>
+      </button>
+    </div>
+
+    <button class="hold-control" id="hold-button" type="button"
+      aria-label="Press and hold to activate textures">
+      <span class="hold-light" id="hold-light"></span>
+      <span>HOLD</span>
+    </button>
+
+    <div class="output-popover" id="output-popover" hidden>
+      <div class="popover-heading">
+        <strong>Audio Output</strong>
+        <button id="close-output-settings" type="button" aria-label="Close">×</button>
+      </div>
+      <label class="output-field" for="output-device">DEVICE</label>
+      <select id="output-device" class="output-select"></select>
+      <p class="output-note" id="output-support-note" hidden></p>
+      <span class="output-field" id="output-mode-label">OUTPUT</span>
+      <div class="output-mode-group" role="radiogroup" aria-labelledby="output-mode-label">
+        <label class="output-mode-option">
+          <input id="output-mode-stereo" type="radio" name="output-mode" value="stereo" checked>
+          <span>Stereo</span>
+        </label>
+        <label class="output-mode-option">
+          <input id="output-mode-mono" type="radio" name="output-mode" value="mono">
+          <span>Mono</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="midi-backdrop" hidden></div>
+    <div class="midi-popover" id="midi-popover" role="dialog" aria-modal="true"
+      aria-labelledby="midi-title" hidden>
+      <div class="popover-heading">
+        <strong id="midi-title">MIDI Inputs</strong>
+        <button id="close-midi-settings" type="button" aria-label="Close">×</button>
+      </div>
+      <p class="midi-status" id="midi-status" role="status"></p>
+      <div class="midi-device-list" id="midi-device-list"></div>
+      <div class="midi-actions">
+        <button class="midi-action" id="midi-rescan" type="button">RESCAN</button>
+      </div>
+    </div>
+
+    <div class="hold-popover" id="hold-popover" hidden>
+      <div class="popover-heading">
+        <strong>Global Hold Time</strong>
+        <button id="close-hold-settings" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="hold-time-value" id="hold-popover-value">1500 ms</div>
+      <input id="hold-time" type="range" min="0" max="5000" step="1" value="1500">
+      <div class="range-labels">
+        <span>0 ms</span>
+        <span>5000 ms</span>
+      </div>
+    </div>
+
+    <div class="adsr-popover" id="adsr-popover" hidden>
+      <div class="popover-heading">
+        <strong>Global ADSR</strong>
+        <button id="close-adsr-settings" type="button" aria-label="Close">×</button>
+      </div>
+      <canvas id="adsr-graph" class="adsr-graph" aria-hidden="true"></canvas>
+      <div class="adsr-row">
+        <label for="adsr-attack">ATTACK <span id="adsr-attack-value">500 ms</span></label>
+        <input id="adsr-attack" type="range" min="0" max="10000" step="10" value="500">
+      </div>
+      <div class="adsr-row">
+        <label for="adsr-decay">DECAY <span id="adsr-decay-value">1500 ms</span></label>
+        <input id="adsr-decay" type="range" min="0" max="10000" step="10" value="1500">
+      </div>
+      <div class="adsr-row">
+        <label for="adsr-sustain">SUSTAIN <span id="adsr-sustain-value">80%</span></label>
+        <input id="adsr-sustain" type="range" min="0" max="100" step="1" value="80">
+      </div>
+      <div class="adsr-row">
+        <label for="adsr-release">RELEASE <span id="adsr-release-value">2000 ms</span></label>
+        <input id="adsr-release" type="range" min="0" max="10000" step="10" value="2000">
+      </div>
+      <div class="adsr-row">
+        <label for="adsr-curve">CURVE <span id="adsr-curve-value">0%</span></label>
+        <input id="adsr-curve" type="range" min="-100" max="100" step="1" value="0">
+      </div>
+    </div>
+
+    <div class="session-popover" id="session-popover" hidden>
+      <div class="popover-heading">
+        <strong>Session Files</strong>
+        <button id="close-session-settings" type="button" aria-label="Close">×</button>
+      </div>
+      <p class="session-note">SAVE SESSION writes readable JSON with audio in an <code>audio/</code> folder, or a ZIP when folders are unavailable.</p>
+      <div class="session-actions">
+        <button class="session-action" id="session-save-folder" type="button">SAVE SESSION</button>
+        <button class="session-action" id="session-load-folder" type="button">LOAD SESSION</button>
+        <button class="session-action" id="session-save-zip" type="button">SAVE ZIP</button>
+        <button class="session-action" id="session-load-zip" type="button">LOAD ZIP</button>
+        <button class="session-action demo-action" id="session-load-demo" type="button">LOAD DEMO SCENE</button>
+      </div>
+      <p class="session-status" id="session-status" role="status"></p>
+    </div>
+
+    <div class="clip-popover" id="clip-popover" hidden>
+      <div class="popover-heading">
+        <strong>Clip Edit</strong>
+        <button id="close-clip-editor" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="clip-layer-row">
+        <span id="clip-layer-label">LAYER 01</span>
+        <span id="clip-sample-name">No sample loaded</span>
+      </div>
+
+      <div class="clip-section-label">LOOP TRIM</div>
+      <div class="clip-waveform" id="clip-waveform" aria-hidden="true">
+        <canvas class="waveform-canvas" id="clip-waveform-canvas"></canvas>
+        <span class="wave-trim wave-trim-before" id="clip-wave-trim-before"></span>
+        <span class="wave-trim wave-trim-after" id="clip-wave-trim-after"></span>
+        <span class="wave-fade wave-fade-start" id="clip-wave-fade-start"></span>
+        <span class="wave-fade wave-fade-end" id="clip-wave-fade-end"></span>
+      </div>
+      <div class="trim-bar" id="clip-trim-bar" aria-label="Loop trim range">
+        <div class="trim-outside trim-before" id="clip-trim-before"></div>
+        <div class="trim-outside trim-after" id="clip-trim-after"></div>
+        <div class="trim-selection" id="clip-trim-selection"></div>
+        <div class="trim-fade trim-fade-start" id="clip-fade-start"></div>
+        <div class="trim-fade trim-fade-end" id="clip-fade-end"></div>
+        <button class="trim-handle trim-handle-start" id="clip-handle-start" type="button" aria-label="Loop start"></button>
+        <button class="trim-handle trim-handle-end" id="clip-handle-end" type="button" aria-label="Loop end"></button>
+      </div>
+      <div class="trim-controls">
+        <span class="loop-length" id="clip-loop-length">LOOP —</span>
+        <label class="xfade-control" for="clip-xfade">
+          <span>XFADE <span class="xfade-value" id="clip-xfade-value">80ms</span></span>
+          <input class="xfade-slider" id="clip-xfade" type="range" min="0" max="500" step="10" value="80">
+        </label>
+      </div>
+
+      <div class="clip-divider"></div>
+      <div class="clip-section-label">LOW PASS FILTER</div>
+      <div class="lpf-row">
+        <button class="lpf-toggle" id="clip-lpf-toggle" type="button" aria-pressed="false">OFF</button>
+        <label class="lpf-control" for="clip-lpf">
+          <span>CUTOFF <span class="lpf-value" id="clip-lpf-value">OPEN</span></span>
+          <input class="lpf-slider" id="clip-lpf" type="range" min="0" max="1000" step="1" value="1000">
+        </label>
+      </div>
+      <div class="lpf-note">12 dB/oct · moving CUTOFF switches LPF on</div>
+
+      <div class="clip-divider"></div>
+      <div class="clip-section-label">PEAK LEVEL</div>
+      <div class="normalize-row">
+        <button class="normalize-button" id="clip-normalize" type="button" disabled>NORMALIZE</button>
+        <span class="peak-value" id="clip-peak-value">—</span>
+      </div>
+      <div class="normalize-note">Sets the loudest sample to 0 dB and rewrites this clip's audio</div>
+    </div>
+
+    <input id="session-folder-input" type="file" webkitdirectory directory multiple hidden>
+    <input id="session-zip-input" type="file" accept=".zip,application/zip" hidden>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
